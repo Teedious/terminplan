@@ -1,0 +1,209 @@
+<script
+  src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"
+  crossorigin
+></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"
+  crossorigin
+></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"
+  crossorigin
+></script>
+<!-- Load our React component. -->
+<div id="trainingsplan-container"></div>
+<script type="text/babel">
+  "use strict";
+  const e = React.createElement;
+  const useState = React.useState;
+  const useEffect = React.useEffect;
+  const useMemo = React.useMemo;
+
+  function Optional({ value, className }) {
+    if (value) {
+      return <div className={className}>{value}</div>;
+    } else {
+      return "";
+    }
+  }
+
+  function Box({ Titel, Datum, Uhrzeit, Link, Linktext, Freitext, entfaellt }) {
+    return (
+      <div className={"terminplan-box " + entfaellt ? "termin-entfaellt" : ""}>
+        <div className="terminplan-box-titel">{Titel}</div>
+        <div className="terminplan-box-datum">{Datum}</div>
+        <Optional value={Uhrzeit} className="terminplan-box-uhrzeit" />
+        {Link ? (
+          <a className="terminplan-box-link" href={Link}>
+            {Linktext}
+          </a>
+        ) : (
+          ""
+        )}
+        <Optional className="terminplan-box-freitext" value={Freitext} />
+      </div>
+    );
+  }
+
+  function getDatumStr(startDatum, endDatum) {
+    if (startDatum === endDatum || !endDatum) {
+      return startDatum;
+    } else {
+      return startDatum + " - " + endDatum;
+    }
+  }
+
+  function Ausfall({ wert }) {
+    const datum = wert.Startdatum + " - " + wert.Enddatum;
+    return (
+      <Box
+        Titel={wert.Titel}
+        Datum={getDatumStr(wert.Startdatum, wert.Enddatum)}
+        Uhrzeit={wert.Uhrzeit}
+        Freitext={wert.Freitext}
+        Link={wert.Link}
+        Linktext={wert.Linktext}
+      />
+    );
+  }
+
+  function Training({ wert }) {
+    return (
+      <Box
+        Titel={wert.Wochentag}
+        Datum={Datum}
+        Uhrzeit={wert.Uhrzeit}
+        Link={wert.Link}
+        Linktext={wert.Linktext}
+        entfaellt={wert["Entfällt"]}
+      />
+    );
+  }
+
+  function LimitierteListe({ elemente, settings, Klasse }) {
+    const mehr = elemente.length > settings.max ? true : false;
+    elemente = elemente.slice(0, settings.max);
+    return (
+      <div className="terminplan-ausfaelle">
+        {elemente.map((element, i) => (
+          <Klasse key={i} wert={element} />
+        ))}
+        {mehr ? (
+          <div className="terminplan-ausfaelle-mehr">{settings.mehrLabel}</div>
+        ) : (
+          ""
+        )}
+      </div>
+    );
+  }
+
+  const settings = {
+    ausfaelle: {
+      show: true,
+      max: 3,
+      mehrLabel: "Mehr anzeigen",
+    },
+    probetraining: {
+      show: true,
+      max: 3,
+      mehrLabel: "Mehr anzeigen",
+    },
+    openGym: {
+      show: true,
+      max: 3,
+      mehrLabel: "Mehr anzeigen",
+    },
+  };
+
+  function FilteredPlan({ trainings }) {
+    return (
+      <div className="terminplan">
+        {settings.ausfaelle.show ? (
+          <div className="terminplan-ausfaelle">
+            <LimitierteListe
+              elemente={trainings.ausfaelle}
+              settings={settings.ausfaelle}
+              Klasse={Ausfall}
+            />
+          </div>
+        ) : (
+          ""
+        )}
+
+        {settings.openGym.show ? (
+          <div className="terminplan-open-gym">
+            <LimitierteListe
+              elemente={trainings.groupedTerminplan["Open Gym"]}
+              settings={settings.openGym}
+              Klasse={Training}
+            />
+          </div>
+        ) : (
+          ""
+        )}
+
+        {settings.probetraining.show ? (
+          <div className="terminplan-probetraining">
+            <LimitierteListe
+              elemente={trainings.groupedTerminplan["Probetraining"]}
+              settings={settings.probetraining}
+              Klasse={Training}
+            />
+          </div>
+        ) : (
+          ""
+        )}
+      </div>
+    );
+  }
+
+  function Fetchplan() {
+    const [fetchedData, updateFetchedData] = useState([]);
+    const [loading, updateLoading] = useState(true);
+
+    useEffect(() => {
+      fetch(
+        "https://script.google.com/macros/s/AKfycbzoowo_jQlHNDD9HOVC2oxBm8yxPdFuovVwAB2AwYbd_nMhaoob_vF6-DExbldCb4Hv/exec"
+      )
+        .then(response => response.json())
+        .then(json => updateFetchedData(json))
+        .then(() => updateLoading(false));
+    }, []);
+
+    if (loading) return <Spinner />;
+
+    return <FilteredPlan trainings={fetchedData.trainings} />;
+  }
+
+  function Test() {
+    return (
+      <LimitierteListe
+        elemente={[
+          {
+            Titel: "Titel",
+            Startdatum: "27.01.2022",
+            Enddatum: "28.01.2022",
+            Uhrzeit: "18 Uhr",
+            Freitext: "Entfällt",
+            Link: "https://www.google.de",
+            Linktext: "Link",
+          },
+        ]}
+        settings={{ max: 2, mehrLabel: "Mehr anzeigen" }}
+        Klasse={Ausfall}
+      />
+    );
+  }
+
+  function Spinner() {
+    return (
+      <div className="spinner-container">
+        <div id="trainingsplan-spinner" className="lds-dual-ring"></div>
+      </div>
+    );
+  }
+
+  const domContainer = document.querySelector("#trainingsplan-container");
+  const root = ReactDOM.createRoot(domContainer);
+  root.render(e(Fetchplan));
+</script>

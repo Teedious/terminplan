@@ -1,0 +1,23 @@
+{
+  "name": "terminplan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Teedious/terminplan.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Teedious/terminplan/issues"
+  },
+  "homepage": "https://github.com/Teedious/terminplan#readme",
+  "dependencies": {
+    "nodemon": "^2.0.20",
+    "serve": "^14.1.2"
+  }
+}
