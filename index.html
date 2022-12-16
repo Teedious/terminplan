@@ -14,6 +14,34 @@
 <div id="trainingsplan-container"></div>
 <script type="text/babel">
   "use strict";
+
+  const settings = {
+    ausfaelle: {
+      show: true,
+      max: 3,
+      mehrLabel: "Mehr anzeigen",
+      titel: "Bevorstehende <b>Ausfälle im Vereinstraining</b>",
+      untertitel:
+        "Schließungen und Ausfälle im Vereintraining (nur Mitglieder)",
+    },
+    probetraining: {
+      show: true,
+      max: 3,
+      mehrLabel: "Mehr anzeigen",
+      titel: "Bevorstehende <b>Open Gyms</b>",
+      untertitel: "Jeder kann mitmachen, einfach vorbeikommen.",
+      pill: "8€ für Nichtmitglieder",
+    },
+    openGym: {
+      show: true,
+      max: 3,
+      mehrLabel: "Mehr anzeigen",
+      titel: "Bevorstehende <b>Probetrainings</b>",
+      untertitel: "Jeder kann mitmachen, Voranmeldung erforderlich!",
+      pill: "8€ für Nichtmitglieder",
+    },
+  };
+
   const e = React.createElement;
   const useState = React.useState;
   const useEffect = React.useEffect;
@@ -29,12 +57,14 @@
 
   function Box({ Titel, Datum, Uhrzeit, Link, Linktext, Freitext, entfaellt }) {
     return (
-      <div className={"terminplan-box " + entfaellt ? "termin-entfaellt" : ""}>
+      <div
+        className={"terminplan-box" + (entfaellt ? " termin-entfaellt" : "")}
+      >
         <div className="terminplan-box-titel">{Titel}</div>
         <div className="terminplan-box-datum">{Datum}</div>
         <Optional value={Uhrzeit} className="terminplan-box-uhrzeit" />
         {Link ? (
-          <a className="terminplan-box-link" href={Link}>
+          <a target="_blank" className="terminplan-box-link" href={Link}>
             {Linktext}
           </a>
         ) : (
@@ -71,7 +101,7 @@
     return (
       <Box
         Titel={wert.Wochentag}
-        Datum={Datum}
+        Datum={wert.Datum}
         Uhrzeit={wert.Uhrzeit}
         Link={wert.Link}
         Linktext={wert.Linktext}
@@ -79,41 +109,54 @@
       />
     );
   }
+  function LimitierteListeHeader({ settings}){
+    return <div className="terminplan-liste-header">
+          {settings.titel ? (
+            <div
+              className="terminplan-liste-titel"
+              dangerouslySetInnerHTML={{ __html: settings.titel }}
+            />
+          ) : (
+            ""
+          )}
+          {settings.untertitel ? (
+            <div
+              className="terminplan-liste-untertitel"
+              dangerouslySetInnerHTML={{ __html: settings.untertitel }}
+            />
+          ) : (
+            ""
+          )}
+          {settings.pill ? (
+            <div
+              className="terminplan-liste-pill"
+              dangerouslySetInnerHTML={{ __html: settings.pill }}
+            />
+          ) : (
+            ""
+          )}
+        </div>;
+  }
 
   function LimitierteListe({ elemente, settings, Klasse }) {
     const mehr = elemente.length > settings.max ? true : false;
     elemente = elemente.slice(0, settings.max);
     return (
-      <div className="terminplan-ausfaelle">
-        {elemente.map((element, i) => (
-          <Klasse key={i} wert={element} />
-        ))}
-        {mehr ? (
-          <div className="terminplan-ausfaelle-mehr">{settings.mehrLabel}</div>
-        ) : (
-          ""
-        )}
+      <div className="terminplan-liste">
+        <LimitierteListeHeader settings={settings} />
+        <div className="terminplan-liste-body">
+          {elemente.map((element, i) => (
+            <Klasse key={i} wert={element} />
+          ))}
+          {mehr ? (
+            <div className="terminplan-liste-mehr">{settings.mehrLabel}</div>
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     );
   }
-
-  const settings = {
-    ausfaelle: {
-      show: true,
-      max: 3,
-      mehrLabel: "Mehr anzeigen",
-    },
-    probetraining: {
-      show: true,
-      max: 3,
-      mehrLabel: "Mehr anzeigen",
-    },
-    openGym: {
-      show: true,
-      max: 3,
-      mehrLabel: "Mehr anzeigen",
-    },
-  };
 
   function FilteredPlan({ trainings }) {
     return (
@@ -165,14 +208,14 @@
       fetch(
         "https://script.google.com/macros/s/AKfycbzoowo_jQlHNDD9HOVC2oxBm8yxPdFuovVwAB2AwYbd_nMhaoob_vF6-DExbldCb4Hv/exec"
       )
-        .then(response => response.json())
-        .then(json => updateFetchedData(json))
+        .then((response) => response.json())
+        .then((json) => updateFetchedData(json))
         .then(() => updateLoading(false));
     }, []);
 
     if (loading) return <Spinner />;
-
-    return <FilteredPlan trainings={fetchedData.trainings} />;
+    console.log(fetchedData);
+    return <FilteredPlan trainings={fetchedData} />;
   }
 
   function Test() {
@@ -206,4 +249,113 @@
   const domContainer = document.querySelector("#trainingsplan-container");
   const root = ReactDOM.createRoot(domContainer);
   root.render(e(Fetchplan));
+
+  function Mockplan() {
+    const mockData = {
+      terminplan: [
+        {
+          Typ: "Open Gym",
+          DatumDate: "2022-12-14T00:00:00.000Z",
+          Datum: "14.12.2022",
+          Wochentag: "Mittwoch",
+          Uhrzeit: "19:30 - 22:00 Uhr",
+          Link: "https://google.de",
+          Linktext: "Zu Google3",
+          Entfällt: false,
+          "Auf Website": true,
+        },
+        {
+          Typ: "Probetraining",
+          DatumDate: "2022-12-15T00:00:00.000Z",
+          Datum: "15.12.2022",
+          Wochentag: "Donnerstag",
+          Uhrzeit: "10:00 - 12:00 Uhr",
+          Link: "https://google.de",
+          Linktext: "Zu Google4",
+          Entfällt: true,
+          "Auf Website": true,
+        },
+        {
+          Typ: "Probetraining",
+          DatumDate: "2022-12-16T00:00:00.000Z",
+          Datum: "16.12.2022",
+          Wochentag: "Freitag",
+          Uhrzeit: "10:00 - 12:00 Uhr",
+          Link: "https://google.de",
+          Linktext: "Zu Google5",
+          Entfällt: true,
+          "Auf Website": true,
+        },
+      ],
+      ausfaelle: [
+        {
+          Typ: "Ferien",
+          Titel: "Weihnachtsferien 2022",
+          StartdatumDate: "2022-12-24T00:00:00.000Z",
+          Startdatum: "24.12.2022",
+          EnddatumDate: "2023-01-06T00:00:00.000Z",
+          Enddatum: "06.01.2023",
+          Uhrzeit: "",
+          Link: "https://google.de",
+          Linktext: "Zu Google2",
+          Freitext: "Frohe Weihnachten",
+          "Auf Website": true,
+        },
+        {
+          Typ: "Ferien",
+          Titel: "Späte Herbstferien 2022",
+          StartdatumDate: "2022-10-24T00:00:00.000Z",
+          Startdatum: "24.10.2022",
+          EnddatumDate: "2022-12-14T00:00:00.000Z",
+          Enddatum: "14.12.2022",
+          Uhrzeit: "",
+          Link: "https://google.de",
+          Linktext: "Zu Google2",
+          Freitext: "Frohe Weihnachten",
+          "Auf Website": true,
+        },
+      ],
+      groupedTerminplan: {
+        "Open Gym": [
+          {
+            Typ: "Open Gym",
+            DatumDate: "2022-12-14T00:00:00.000Z",
+            Datum: "14.12.2022",
+            Wochentag: "Mittwoch",
+            Uhrzeit: "19:30 - 22:00 Uhr",
+            Link: "https://google.de",
+            Linktext: "Zu Google3",
+            Entfällt: false,
+            "Auf Website": true,
+          },
+        ],
+        Probetraining: [
+          {
+            Typ: "Probetraining",
+            DatumDate: "2022-12-15T00:00:00.000Z",
+            Datum: "15.12.2022",
+            Wochentag: "Donnerstag",
+            Uhrzeit: "10:00 - 12:00 Uhr",
+            Link: "https://google.de",
+            Linktext: "Zu Google4",
+            Entfällt: true,
+            "Auf Website": true,
+          },
+          {
+            Typ: "Probetraining",
+            DatumDate: "2022-12-16T00:00:00.000Z",
+            Datum: "16.12.2022",
+            Wochentag: "Freitag",
+            Uhrzeit: "10:00 - 12:00 Uhr",
+            Link: "https://google.de",
+            Linktext: "Zu Google5",
+            Entfällt: true,
+            "Auf Website": true,
+          },
+        ],
+      },
+    };
+
+    return <FilteredPlan trainings={mockData} />;
+  }
 </script>
