@@ -15,31 +15,46 @@
 <script type="text/babel">
   "use strict";
 
-  
   const settings = {
     ausfaelle: {
       show: true,
       max: 3,
-      mehrLabel: "Mehr anzeigen",
+      mehr: {
+        label: "Mehr anzeigen",
+        link: "https://www.parkour-regensburg.de/ausfaelle/",
+      },
       titel: "Bevorstehende <b>Ausfälle im Vereinstraining</b>",
       untertitel:
         "Schließungen und Ausfälle im Vereintraining (nur Mitglieder)",
+      pills: [],
     },
     probetraining: {
       show: true,
       max: 3,
-      mehrLabel: "Mehr anzeigen",
+      mehr: {
+        label: "Mehr anzeigen",
+        link: "https://www.parkour-regensburg.de/probetraining/",
+      },
       titel: "Bevorstehende <b>Open Gyms</b>",
       untertitel: "Jeder kann mitmachen, einfach vorbeikommen.",
-      pill: "8€ für Nichtmitglieder",
+      pills: [
+        { className: "preis", html: "8€ für Nichtmitglieder" },
+        { className: "alter", html: "ab 8 Jahren" },
+      ],
     },
     openGym: {
       show: true,
       max: 3,
-      mehrLabel: "Mehr anzeigen",
+      mehr: {
+        label: "Mehr anzeigen",
+        link: "https://www.parkour-regensburg.de/open-gym/",
+      },
       titel: "Bevorstehende <b>Probetrainings</b>",
       untertitel: "Jeder kann mitmachen, Voranmeldung erforderlich!",
-      pill: "8€ für Nichtmitglieder",
+      pills: [
+        { className: "preis", html: "8€ für Nichtmitglieder" },
+        { className: "alter", html: "ab 8 Jahren" },
+      ],
     },
   };
 
@@ -64,6 +79,7 @@
         <div className="terminplan-box-titel">{Titel}</div>
         <div className="terminplan-box-datum">{Datum}</div>
         <Optional value={Uhrzeit} className="terminplan-box-uhrzeit" />
+        <Optional className="terminplan-box-freitext" value={Freitext} />
         {Link ? (
           <a target="_blank" className="terminplan-box-link" href={Link}>
             {Linktext}
@@ -71,7 +87,6 @@
         ) : (
           ""
         )}
-        <Optional className="terminplan-box-freitext" value={Freitext} />
       </div>
     );
   }
@@ -110,33 +125,44 @@
       />
     );
   }
-  function LimitierteListeHeader({ settings}){
-    return <div className="terminplan-liste-header">
-          {settings.titel ? (
+
+  function Pills({ pills }) {
+    return (
+      <div className="terminplan-pills">
+        {pills.map((pill, i) => (
+          <div key={i} className={"terminplan-pill " + pill.className}>
             <div
-              className="terminplan-liste-titel"
-              dangerouslySetInnerHTML={{ __html: settings.titel }}
+              className={pill.className}
+              dangerouslySetInnerHTML={{ __html: pill.html }}
             />
-          ) : (
-            ""
-          )}
-          {settings.untertitel ? (
-            <div
-              className="terminplan-liste-untertitel"
-              dangerouslySetInnerHTML={{ __html: settings.untertitel }}
-            />
-          ) : (
-            ""
-          )}
-          {settings.pill ? (
-            <div
-              className="terminplan-liste-pill"
-              dangerouslySetInnerHTML={{ __html: settings.pill }}
-            />
-          ) : (
-            ""
-          )}
-        </div>;
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function LimitierteListeHeader({ settings }) {
+    return (
+      <div className="terminplan-liste-header">
+        {settings.titel ? (
+          <div
+            className="terminplan-liste-titel"
+            dangerouslySetInnerHTML={{ __html: settings.titel }}
+          />
+        ) : (
+          ""
+        )}
+        {settings.untertitel ? (
+          <div
+            className="terminplan-liste-untertitel"
+            dangerouslySetInnerHTML={{ __html: settings.untertitel }}
+          />
+        ) : (
+          ""
+        )}
+        {settings.pills.length > 0 ? <Pills pills={settings.pills} /> : ""}
+      </div>
+    );
   }
 
   function LimitierteListe({ elemente, settings, Klasse }) {
@@ -150,7 +176,7 @@
             <Klasse key={i} wert={element} />
           ))}
           {mehr ? (
-            <div className="terminplan-liste-mehr">{settings.mehrLabel}</div>
+            <div className="terminplan-liste-mehr"><a target="_blank" href={settings.mehr.link}>{settings.mehr.label}</a></div>
           ) : (
             ""
           )}
