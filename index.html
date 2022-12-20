@@ -8,8 +8,7 @@
         link: "https://www.parkour-regensburg.de/ausfaelle/",
       },
       titel: "Bevorstehende <b>Ausfälle im Vereinstraining</b>",
-      untertitel:
-        "Schließungen und Ausfälle im Vereintraining (nur Mitglieder)",
+      untertitel: "Schließungen und Ausfälle im Vereintraining (nur Mitglieder)",
       pills: [],
     },
     openGym: {
@@ -34,8 +33,7 @@
         label: "Mehr anzeigen ›",
         link: "/probetraining",
       },
-      titel:
-        'Bevorstehende <a href="/probetraining"><b><u>Probetrainings</u> ›</b></a>',
+      titel: 'Bevorstehende <a href="/probetraining"><b><u>Probetrainings</u> ›</b></a>',
       untertitel: "Jeder kann mitmachen, Voranmeldung erforderlich!",
       pills: [
         { className: "alter", html: "ab <b>8</b> Jahren" },
@@ -46,18 +44,9 @@
   };
 </script>
 
-<script
-  src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"
-  crossorigin
-></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"
-  crossorigin
-></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"
-  crossorigin
-></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js" crossorigin></script>
 <!-- Load our React component. -->
 <div id="trainingsplan-container"></div>
 <script type="text/babel">
@@ -77,9 +66,7 @@
 
   function Box({ Titel, Datum, Uhrzeit, Link, Linktext, Freitext, entfaellt }) {
     return (
-      <div
-        className={"terminplan-box" + (entfaellt ? " termin-entfaellt" : "")}
-      >
+      <div className={"terminplan-box" + (entfaellt ? " termin-entfaellt" : "")}>
         <div className="terminplan-box-titel">{Titel}</div>
         <div className="terminplan-box-datum">{Datum}</div>
         <Optional value={Uhrzeit} className="terminplan-box-uhrzeit" />
@@ -135,10 +122,7 @@
       <div className="terminplan-pills">
         {pills.map((pill, i) => (
           <div key={i} className={"terminplan-pill " + pill.className}>
-            <div
-              className={pill.className}
-              dangerouslySetInnerHTML={{ __html: pill.html }}
-            />
+            <div className={pill.className} dangerouslySetInnerHTML={{ __html: pill.html }} />
           </div>
         ))}
       </div>
@@ -149,18 +133,12 @@
     return (
       <div className="terminplan-liste-header">
         {settings.titel ? (
-          <div
-            className="terminplan-liste-titel"
-            dangerouslySetInnerHTML={{ __html: settings.titel }}
-          />
+          <div className="terminplan-liste-titel" dangerouslySetInnerHTML={{ __html: settings.titel }} />
         ) : (
           ""
         )}
         {settings.untertitel ? (
-          <div
-            className="terminplan-liste-untertitel"
-            dangerouslySetInnerHTML={{ __html: settings.untertitel }}
-          />
+          <div className="terminplan-liste-untertitel" dangerouslySetInnerHTML={{ __html: settings.untertitel }} />
         ) : (
           ""
         )}
@@ -194,23 +172,18 @@
   }
 
   function FilteredPlan({ trainings }) {
-    const showTerminplan =
-      (trainings.ausfaelle.length ?? 0) > 0 && settings.ausfaelle.show;
-    const showOpenGym =
-      (trainings.groupedTerminplan["Open Gym"].length ?? 0) > 0 &&
-      settings.openGym.show;
-    const showProbetraining =
-      (trainings.groupedTerminplan.Probetraining.length ?? 0) > 0 &&
-      settings.probetraining.show;
+    function show(arr, bool) {
+      if (!arr) return false;
+      return arr.length > 0 && bool;
+    }
+    const showAusfaelle = show(trainings.ausfaelle, settings.ausfaelle.show);
+    const showOpenGym = show(trainings.groupedTerminplan["Open Gym"], settings.openGym.show);
+    const showProbetraining = show(trainings.groupedTerminplan.Probetraining, settings.probetraining.show);
     return (
       <div className="terminplan">
-        {showTerminplan ? (
+        {showAusfaelle ? (
           <div className="terminplan-ausfaelle">
-            <LimitierteListe
-              elemente={trainings.ausfaelle}
-              settings={settings.ausfaelle}
-              Klasse={Ausfall}
-            />
+            <LimitierteListe elemente={trainings.ausfaelle} settings={settings.ausfaelle} Klasse={Ausfall} />
           </div>
         ) : (
           ""
