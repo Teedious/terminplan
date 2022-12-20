@@ -1,54 +1,50 @@
-<script type="">
-const settings = {
-  ausfaelle: {
-    show: true,
-    max: 5,
-    mehr: {
-      label: "Mehr anzeigen",
-      link: "https://www.parkour-regensburg.de/ausfaelle/",
+<script type="text/javascript">
+  const settings = {
+    ausfaelle: {
+      show: true,
+      max: 5,
+      mehr: {
+        label: "Mehr anzeigen ›",
+        link: "https://www.parkour-regensburg.de/ausfaelle/",
+      },
+      titel: "Bevorstehende <b>Ausfälle im Vereinstraining</b>",
+      untertitel:
+        "Schließungen und Ausfälle im Vereintraining (nur Mitglieder)",
+      pills: [],
     },
-    titel: "Bevorstehende <b>Ausfälle im Vereinstraining</b>",
-    untertitel:
-      "Schließungen und Ausfälle im Vereintraining (nur Mitglieder)",
-    pills: [],
-  },
-  openGym: {
-    show: true,
-    max: 5,
-    mehr: {
-      label: "Mehr anzeigen",
-      link: "https://www.parkour-regensburg.de/open-gym/",
+    probetraining: {
+      show: true,
+      max: 5,
+      mehr: {
+        label: "Mehr anzeigen ›",
+        link: "/probetraining",
+      },
+      titel:
+        'Bevorstehende <a href="/probetraining"><b><u>Probetrainings</u> ›</b></a>',
+      untertitel: "Jeder kann mitmachen, Voranmeldung erforderlich!",
+      pills: [
+        { className: "alter", html: "ab <b>8</b> Jahren" },
+        { className: "preis", html: "<b>10€</b> für Nichtmitglieder" },
+        { className: "bar", html: "<b>KEINE</b> Barzahlung möglich!" },
+      ],
     },
-    titel: "Bevorstehende <b>Open Gyms</b>",
-    untertitel: "Jeder kann mitmachen, einfach vorbeikommen.",
-    pills: [
-      { className: "preis", html: "8€ für Nichtmitglieder" },
-      { className: "alter", html: "ab 8 Jahren" },
-    ],
-  },
-  probetraining: {
-    show: true,
-    max: 5,
-    mehr: {
-      label: "Mehr anzeigen",
-      link: "https://www.parkour-regensburg.de/probetraining/",
+    openGym: {
+      show: true,
+      max: 5,
+      mehr: {
+        label: "Mehr anzeigen ›",
+        link: "/open-gym",
+      },
+      titel: 'Bevorstehende <a href="/open-gym"><b><u>Open Gyms</u> ›</b></a>',
+      untertitel: "Jeder kann mitmachen, einfach vorbeikommen.",
+      pills: [
+        { className: "alter", html: "ab <b>8</b> Jahren" },
+        { className: "preis", html: "<b>10€</b> für Nichtmitglieder" },
+        { className: "bar", html: "<b>KEINE</b> Barzahlung möglich!" },
+      ],
     },
-
-    titel: "Bevorstehende <b>Probetrainings</b>",
-    untertitel: "Jeder kann mitmachen, Voranmeldung erforderlich!",
-    pills: [
-      { className: "preis", html: "8€ für Nichtmitglieder" },
-      { className: "alter", html: "ab 8 Jahren" },
-    ],
-  },
-};
+  };
 </script>
-
-
-
-<div id="trainingsplan-container"></div>
-
-
 
 <script
   src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"
@@ -62,10 +58,10 @@ const settings = {
   src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"
   crossorigin
 ></script>
-
+<!-- Load our React component. -->
+<div id="trainingsplan-container"></div>
 <script type="text/babel">
   "use strict";
-
   const e = React.createElement;
   const useState = React.useState;
   const useEffect = React.useEffect;
@@ -184,7 +180,11 @@ const settings = {
             <Klasse key={i} wert={element} />
           ))}
           {mehr ? (
-            <div className="terminplan-liste-mehr"><a target="_blank" href={settings.mehr.link}>{settings.mehr.label}</a></div>
+            <div className="terminplan-liste-mehr">
+              <a target="_blank" href={settings.mehr.link}>
+                {settings.mehr.label}
+              </a>
+            </div>
           ) : (
             ""
           )}
@@ -194,9 +194,17 @@ const settings = {
   }
 
   function FilteredPlan({ trainings }) {
+    const showTerminplan =
+      (trainings.ausfaelle.length ?? 0) > 0 && settings.ausfaelle.show;
+    const showOpenGym =
+      (trainings.groupedTerminplan["Open Gym"].length ?? 0) > 0 &&
+      settings.openGym.show;
+    const showProbetraining =
+      (trainings.groupedTerminplan.Probetraining.length ?? 0) > 0 &&
+      settings.probetraining.show;
     return (
       <div className="terminplan">
-        {settings.ausfaelle.show ? (
+        {showTerminplan ? (
           <div className="terminplan-ausfaelle">
             <LimitierteListe
               elemente={trainings.ausfaelle}
@@ -208,7 +216,7 @@ const settings = {
           ""
         )}
 
-        {settings.openGym.show ? (
+        {showOpenGym ? (
           <div className="terminplan-open-gym">
             <LimitierteListe
               elemente={trainings.groupedTerminplan["Open Gym"]}
@@ -220,7 +228,7 @@ const settings = {
           ""
         )}
 
-        {settings.probetraining.show ? (
+        {showProbetraining ? (
           <div className="terminplan-probetraining">
             <LimitierteListe
               elemente={trainings.groupedTerminplan["Probetraining"]}
